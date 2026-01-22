@@ -1,0 +1,84 @@
+// 主控制逻辑[1]
+
+const GameManager = {
+    currentChapter: 1,
+    chapter1Complete: false,
+    chapter2Unlocked: false,
+    
+    init() {
+        this.bindChapterButtons();
+        this.updateProgress();
+        Chapter1.init();
+    },
+    
+    bindChapterButtons() {
+        document.querySelectorAll('.chapter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const chapter = parseInt(btn.dataset.chapter);
+                this.switchChapter(chapter);
+            });
+        });
+    },
+    
+    switchChapter(num) {
+        if (num === 2 && !this.chapter2Unlocked) {
+            notify('⚠️ 请先完成第一章体验！');
+            return;
+        }
+        
+        // 隐藏所有章节
+        document.querySelectorAll('.chapter-content').forEach(c => {
+            c.classList.remove('active');
+        });
+        document.querySelectorAll('.chapter-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        
+        // 显示目标章节
+        document.getElementById(`chapter-${num}`).classList.add('active');
+        document.querySelector(`[data-chapter="${num}"]`).classList.add('active');
+        this.currentChapter = num;
+        
+        // 初始化对应章节
+        if (num === 2 && !this.chapter2Initialized) {
+            Chapter2.init();
+            this.chapter2Initialized = true;
+        }
+        
+        this.updateProgress();
+        scrollToTop();
+    },
+    
+    completeChapter1() {
+        this.chapter1Complete = true;
+        this.chapter2Unlocked = true;
+        
+        // 解锁第二章
+        const btn = document.getElementById('chapter2-btn');
+        btn.classList.remove('locked');
+        btn.querySelector('.lock-icon').textContent = '✅';
+        
+        notify('🎉 恭喜完成第一章！已解锁第二章');
+        this.updateProgress();
+    },
+
+    completeChapter2() {
+    notify('🎉 恭喜完成第二章！你已掌握《乡土中国》核心概念');
+    this.updateProgress();
+    }，
+
+    updateProgress() {
+        let progress = 0;
+        if (this.chapter1Complete) progress += 50;
+        if (this.currentChapter === 2) progress += 25;
+        
+        document.getElementById('overall-progress').style.width = progress + '%';
+        document.getElementById('progress-text').textContent = 
+            `整体进度：${progress}%`;
+    }
+};
+
+// 页面加载时初始化
+window.addEventListener('DOMContentLoaded', () => {
+    GameManager.init();
+});
