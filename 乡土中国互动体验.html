@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《乡土中国》互动体验</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部标题 -->
+        <div class="title-bar">
+            <h1>🌾 《乡土中国》互动体验系列</h1>
+            <div class="subtitle">费孝通经典著作·沉浸式学习</div>
+        </div>
+        
+        <!-- 章节导航 -->
+        <div class="chapter-nav">
+            <button class="chapter-btn active" data-chapter="1">
+                📖 第一章：乡土本色
+            </button>
+            <button class="chapter-btn locked" data-chapter="2" id="chapter2-btn">
+                🎭 第二章：差序格局
+                <span class="lock-icon">🔒</span>
+            </button>
+        </div>
+        
+        <!-- 总体进度 -->
+        <div class="overall-progress">
+            <div class="progress-track">
+                <div class="progress-fill" id="overall-progress"></div>
+            </div>
+            <div class="progress-text" id="progress-text">整体进度：0%</div>
+        </div>
+        
+        <!-- 章节内容容器 -->
+        <div id="chapter-1" class="chapter-content active"></div>
+        <div id="chapter-2" class="chapter-content"></div>
+    </div>
+    
+    <!-- 通知容器 -->
+    <div id="notify-box"></div>
+
+    <!-- 加载JS模块 -->
+    <script src="js/utils.js"></script>
+    <script src="js/chapter1.js"></script>
+    <script src="js/chapter2.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
