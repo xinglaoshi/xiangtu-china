@@ -1,0 +1,408 @@
+// 第二章：差序格局 - 关系网络建构游戏
+
+const Chapter2 = {
+    currentStep: 0,
+    relationshipCircles: {
+        circle1: [], // 最内圈：家人
+        circle2: [], // 第二圈：亲戚朋友
+        circle3: [], // 第三圈：邻居同事
+        circle4: []  // 最外圈：陌生人
+    },
+    scenarios: [],
+    insights: [],
+    
+    // 预设场景数据
+    steps: [
+        // Step 0: 引导页
+        {
+            type: 'intro',
+            title: '理解差序格局',
+            content: `
+                <div class="chapter2-intro">
+                    <div class="intro-icon">🎭</div>
+                    <h2>什么是"差序格局"？</h2>
+                    <div class="intro-text">
+                        <p>费孝通用一个比喻来描述中国传统社会的人际关系：</p>
+                        <blockquote>
+                            "好像把一块石头丢在水面上所发生的一圈圈推出去的波纹，
+                            每个人都是他社会影响所推出去的圈子的中心。"
+                        </blockquote>
+                        <p><strong>核心特点：</strong></p>
+                        <ul>
+                            <li>✓ 以"我"为中心，向外一圈圈推</li>
+                            <li>✓ 不同圈层的人，权利义务不同</li>
+                            <li>✓ 没有固定的"团体"边界</li>
+                        </ul>
+                    </div>
+                    <button class="next-btn" onclick="Chapter2.nextStep()">
+                        开始体验 →
+                    </button>
+                </div>
+            `
+        },
+        
+        // Step 1: 绘制关系圈
+        {
+            type: 'draw-circles',
+            title: '绘制你的关系圈',
+            instruction: '从"我"开始，把生活中的人放进不同的圈层',
+            people: [
+                { name: '父母', defaultCircle: 1 },
+                { name: '兄弟姐妹', defaultCircle: 1 },
+                { name: '堂兄弟', defaultCircle: 2 },
+                { name: '表兄弟', defaultCircle: 2 },
+                { name: '老同学', defaultCircle: 2 },
+                { name: '同事', defaultCircle: 3 },
+                { name: '邻居', defaultCircle: 3 },
+                { name: '外卖小哥', defaultCircle: 4 },
+                { name: '快递员', defaultCircle: 4 }
+            ]
+        },
+        
+        // Step 2-4: 情境选择（差序格局 vs 团体格局）
+        {
+            type: 'scenario',
+            title: '情境一：借钱',
+            question: '亲戚找你借5000元，说急用，你会怎么做？',
+            options: {
+                differential: {
+                    label: '差序格局思维',
+                    choices: [
+                        { text: '看是谁：直系亲属借，远房亲戚推脱', key: 'A' },
+                        { text: '看关系：平时走得近就借，不熟就找理由', key: 'B' }
+                    ],
+                    result: '你的思维体现了**差序格局**：同样是"亲戚"，但根据关系远近做出不同决定。这在乡土社会是合理的——"自己人"和"外人"有明确区分。[1]'
+                },
+                group: {
+                    label: '团体格局思维',
+                    choices: [
+                        { text: '看制度：如果有借条、利息，按流程来', key: 'C' },
+                        { text: '看能力：只要我有余钱，不管是谁都愿意帮', key: 'D' }
+                    ],
+                    result: '你的思维体现了**团体格局**：把所有人放在统一规则下考虑，不因亲疏而有差别。这是现代社会的逻辑——平等、契约、理性。[2]'
+                }
+            },
+            insight: {
+                icon: '💡',
+                title: '解锁概念：差序 vs 团体',
+                content: `
+                    **差序格局**的核心是"亲疏有别"：\n
+                    - 对不同圈层的人，权利义务不同\n
+                    - "自己人"可以要求更多，也承担更多\n
+                    - 没有统一的道德标准\n\n
+                    **团体格局**的核心是"一视同仁"：\n
+                    - 在同一团体（公司、俱乐部）内，规则统一\n
+                    - 不考虑私人关系，只看是否符合规则\n
+                    - 有明确的团体边界
+                `,
+                tags: ['差序格局', '团体格局', '亲疏有别']
+            }
+        },
+        
+        {
+            type: 'scenario',
+            title: '情境二：车位争夺',
+            question: '小区车位紧张，你停车时发现有人占了你常停的位置',
+            options: {
+                differential: {
+                    label: '差序格局思维',
+                    choices: [
+                        { text: '看是谁的车：熟人的话打电话协商，陌生人就发火', key: 'A' },
+                        { text: '托关系：找物业的熟人帮忙说话', key: 'B' }
+                    ],
+                    result: '典型的**差序格局**处理方式：同样的问题，对"自己人"和"外人"采取完全不同的态度。关系成为解决问题的首要考虑。[1]'
+                },
+                group: {
+                    label: '团体格局思维',
+                    choices: [
+                        { text: '看规则：先到先得，只能接受', key: 'C' },
+                        { text: '找物业：按小区规定处理，不管是谁', key: 'D' }
+                    ],
+                    result: '典型的**团体格局**处理方式：问题交给制度和规则，不因人而异。所有业主在规则面前平等。[2]'
+                }
+            },
+            insight: {
+                icon: '⚖️',
+                title: '深化理解：规则 vs 人情',
+                content: `
+                    差序格局为什么会有"走后门"？\n
+                    → 因为**关系优先于规则**。对"自己人"可以例外。\n\n
+                    团体格局为什么更"公平"？\n
+                    → 因为**规则优先于关系**。所有人按同一标准。\n\n
+                    但团体格局也更"冷漠"：\n
+                    → 人与人之间是**功能性关系**，只在特定场合接触。
+                `,
+                tags: ['人情社会', '规则意识', '走后门']
+            }
+        },
+        
+        {
+            type: 'scenario',
+            title: '情境三：工作机会',
+            question: '你的公司有个晋升名额，候选人中有你表弟，他能力一般',
+            options: {
+                differential: {
+                    label: '差序格局思维',
+                    choices: [
+                        { text: '帮亲戚：能力差点没关系，自己人要照顾', key: 'A' },
+                        { text: '看关系：如果是亲兄弟一定帮，表弟就算了', key: 'B' }
+                    ],
+                    result: '你在用**差序格局**的逻辑：亲属关系带来特殊义务。"举贤不避亲"在传统社会是美德，因为"自己人"最可靠。[1]'
+                },
+                group: {
+                    label: '团体格局思维',
+                    choices: [
+                        { text: '看能力：谁最胜任谁上，不管是不是亲戚', key: 'C' },
+                        { text: '避嫌：正因为是亲戚，我反而要回避决策', key: 'D' }
+                    ],
+                    result: '你在用**团体格局**的逻辑：在"公司"这个团体里，所有人按能力和贡献评价，亲缘关系应该隔离在外。[2]'
+                }
+            },
+            insight: {
+                icon: '🔍',
+                title: '批判性思考：两种格局的优劣',
+                content: `
+                    **差序格局的优势：**\n
+                    - 人际关系温暖，有归属感\n
+                    - 互助网络强大，困难时有人帮\n
+                    - 伦理道德清晰，知道该怎么做\n\n
+                    **差序格局的问题：**\n
+                    - 容易形成小圈子、裙带关系\n
+                    - 公共利益让位于私人关系\n
+                    - 陌生人之间缺乏信任\n\n
+                    **当代中国的现实：**\n
+                    既不是纯粹的差序，也不是纯粹的团体，\n
+                    而是**两种格局并存、转型中的混合状态**。
+                `,
+                tags: ['社会转型', '传统与现代', '批判性思维']
+            }
+        },
+        
+        // Step 5: 总结对比
+        {
+            type: 'summary',
+            title: '概念总结：两种社会结构'
+        }
+    ],
+    
+    init() {
+        this.renderStep();
+    },
+    
+    renderStep() {
+        const container = document.getElementById('chapter-2');
+        const step = this.steps[this.currentStep];
+        
+        if (!step) return;
+        
+        let html = '';
+        
+        switch(step.type) {
+            case 'intro':
+                html = step.content;
+                break;
+            case 'draw-circles':
+                html = this.renderDrawCircles(step);
+                break;
+            case 'scenario':
+                html = this.renderScenario(step);
+                break;
+            case 'summary':
+                html = this.renderSummary();
+                break;
+        }
+        
+        container.innerHTML = html;
+        this.bindEvents();
+    },
+    
+    renderDrawCircles(step) {
+        let html = '<div class="circle-builder">';
+        html += `<h2>${step.title}</h2>`;
+        html += `<p class="instruction">${step.instruction}</p>`;
+        
+        // 可视化关系圈
+        html += '<div class="circles-visual">';
+        html += '<div class="circle-layer circle-4"><span class="circle-label">陌生人</span></div>';
+        html += '<div class="circle-layer circle-3"><span class="circle-label">邻居同事</span></div>';
+        html += '<div class="circle-layer circle-2"><span class="circle-label">亲戚朋友</span></div>';
+        html += '<div class="circle-layer circle-1"><span class="circle-label">家人</span></div>';
+        html += '<div class="circle-center">我</div>';
+        html += '</div>';
+        
+        // 人物卡片
+        html += '<div class="people-cards">';
+        step.people.forEach((person, idx) => {
+            html += `
+                <div class="person-card" data-idx="${idx}">
+                    <div class="person-name">${person.name}</div>
+                    <select class="circle-select" data-person="${person.name}">
+                        <option value="1" ${person.defaultCircle === 1 ? 'selected' : ''}>家人圈</option>
+                        <option value="2" ${person.defaultCircle === 2 ? 'selected' : ''}>亲友圈</option>
+                        <option value="3" ${person.defaultCircle === 3 ? 'selected' : ''}>熟人圈</option>
+                        <option value="4" ${person.defaultCircle === 4 ? 'selected' : ''}>陌生人圈</option>
+                    </select>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        html += '<button class="next-btn" onclick="Chapter2.nextStep()">完成分配 →</button>';
+        html += '</div>';
+        
+        return html;
+    },
+    
+    renderScenario(step) {
+        let html = '<div class="scenario-dual">';
+        
+        // 场景描述
+        html += `<h2>${step.title}</h2>`;
+        html += `<div class="scenario-question">${step.question}</div>`;
+        
+        // 双栏选择
+        html += '<div class="dual-options">';
+        
+        // 左栏：差序格局
+        html += '<div class="option-panel differential">';
+        html += `<h3>${step.options.differential.label}</h3>`;
+        step.options.differential.choices.forEach(choice => {
+            html += `<button class="choice-btn" data-type="differential" data-key="${choice.key}">`;
+            html += choice.text;
+            html += '</button>';
+        });
+        html += '<div class="result-box" id="differential-result"></div>';
+        html += '</div>';
+        
+        // 右栏：团体格局
+        html += '<div class="option-panel group">';
+        html += `<h3>${step.options.group.label}</h3>`;
+        step.options.group.choices.forEach(choice => {
+            html += `<button class="choice-btn" data-type="group" data-key="${choice.key}">`;
+            html += choice.text;
+            html += '</button>';
+        });
+        html += '<div class="result-box" id="group-result"></div>';
+        html += '</div>';
+        
+        html += '</div>'; // end dual-options
+        
+        html += '<div id="insight-box" class="hidden"></div>';
+        html += '<button id="next-btn" class="next-btn hidden" onclick="Chapter2.nextStep()">继续 →</button>';
+        html += '</div>';
+        
+        return html;
+    },
+    
+    renderSummary() {
+        let html = '<div class="summary-page">';
+        html += '<h2 class="summary-title">🎓 第二章完成！</h2>';
+        
+        html += '<div class="comparison-grid">';
+        html += '<div class="comparison-item">';
+        html += '<div class="comparison-label">🌾 差序格局</div>';
+        html += '<div class="comparison-text">';
+        html += '<ul>';
+        html += '<li>以"我"为中心的同心圆结构</li>';
+        html += '<li>亲疏有别，权利义务因人而异</li>';
+        html += '<li>人情重于规则</li>';
+        html += '<li>适合熟人社会</li>';
+        html += '</ul>';
+        html += '</div>';
+        html += '</div>';
+        
+        html += '<div class="comparison-item">';
+        html += '<div class="comparison-label">🏙️ 团体格局</div>';
+        html += '<div class="comparison-text">';
+        html += '<ul>';
+        html += '<li>以"团体"为单位的边界结构</li>';
+        html += '<li>团体内一视同仁</li>';
+        html += '<li>规则重于人情</li>';
+        html += '<li>适合陌生人社会</li>';
+        html += '</ul>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        
+        html += '<div class="final-insight">';
+        html += '<h3>📖 费孝通的洞察</h3>';
+        html += '<p>中国传统社会是**差序格局**，西方现代社会是**团体格局**。这不是优劣之分，而是历史形成的不同社会结构。</p>';
+        html += '<p>当代中国正在经历从<strong>差序格局向团体格局</strong>的转型，两种格局并存，带来很多矛盾和冲突——这正是理解当下中国社会的关键。</p>';
+        html += '</div>';
+        
+        html += '<div class="action-buttons">';
+        html += '<button class="action-btn" onclick="Chapter2.restart()">🔄 重新体验</button>';
+        html += '<button class="action-btn share" onclick="shareAsImage(\'.summary-page\', \'差序格局_学习总结\')">📸 保存总结</button>';
+        html += '</div>';
+        
+        html += '</div>';
+        return html;
+    },
+    
+    bindEvents() {
+        // 绑定场景选择事件[2]
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.makeChoice(btn.dataset.type, btn.dataset.key);
+            });
+        });
+    },
+    
+    makeChoice(type, key) {
+        const step = this.steps[this.currentStep];
+        this.scenarios.push({ step: this.currentStep, type, key });
+        
+        // 显示对应结果[2]
+        const result = step.options[type].result;
+        document.getElementById(`${type}-result`).innerHTML = 
+            `<div class="result-content">${renderMarkdown(result)}</div>`;
+        
+        // 禁用所有按钮
+        document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+        
+        // 显示概念解锁[1][2]
+        setTimeout(() => this.showInsight(step.insight), 800);
+    },
+    
+    showInsight(insight) {
+        this.insights.push(insight.title);
+        
+        const html = `
+            <div class="insight-unlock">
+                <div class="insight-icon">${insight.icon}</div>
+                <div class="insight-title">${insight.title}</div>
+                <div class="insight-content">${renderMarkdown(insight.content)}</div>
+                <div>
+                    ${insight.tags.map(t => `<span class="insight-tag">${t}</span>`).join('')}
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('insight-box').innerHTML = html;
+        document.getElementById('insight-box').classList.remove('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+        
+        notify('🎓 解锁新概念：' + insight.tags[0]);
+        scrollToBottom();
+    },
+    
+    nextStep() {
+        this.currentStep++;
+        
+        if (this.currentStep >= this.steps.length) {
+            // 完成第二章
+            GameManager.completeChapter2();
+        } else {
+            this.renderStep();
+            scrollToTop();
+        }
+    },
+    
+    restart() {
+        this.currentStep = 0;
+        this.scenarios = [];
+        this.insights = [];
+        this.renderStep();
+        scrollToTop();
+    }
+};
