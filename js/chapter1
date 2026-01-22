@@ -1,0 +1,189 @@
+// 第一章：乡土本色[1][2]
+
+const Chapter1 = {
+    scene: 0,
+    choices: [],
+    insights: [],
+    
+    scenes: [
+        {
+            title: "序章：一天的开始",
+            rural: {
+                icon: "🏘️",
+                time: "1940年代·清晨",
+                desc: "晨雾笼罩着青田村。公鸡打鸣，村民们陆续走出家门。你是这个村庄的一员，世代生活在这片土地上。今天，你需要面对一些日常事务。",
+                situation: "你的农具坏了，今天需要用它耕地。你该怎么办？",
+                choices: [
+                    { text: "去找隔壁老王借", key: "A" },
+                    { text: "去村里的铁匠那修", key: "B" },
+                    { text: "自己试着修修看", key: "C" }
+                ]
+            },
+            urban: {
+                icon: "🏙️",
+                time: "2024年·清晨",
+                desc: "闹钟响起，你从出租屋醒来。这座城市你才来半年，租住在高层公寓的一间单间里。楼里的邻居你一个都不认识。今天，你也需要处理一些事情。",
+                situation: "你的电脑出了故障，今天需要用它工作。你该怎么办？",
+                choices: [
+                    { text: "敲邻居的门求助", key: "A" },
+                    { text: "在淘宝找上门维修", key: "B" },
+                    { text: "自己在网上搜教程修", key: "C" }
+                ]
+            },
+            results: {
+                A: {
+                    rural: "老王放下手里的活，二话不说借给你，还顺便帮你检查了一遍。\"明天不急着还，用完了再说。\"他笑着拍拍你的肩膀。你知道，下次他家有事，你也会这样帮忙。",
+                    urban: "门开了一条缝，对方警惕地看着你：\"我不会修电脑。\"话音未落，门已经关上。你感到尴尬，意识到在这栋楼住了半年，连邻居叫什么都不知道。"
+                },
+                B: {
+                    rural: "村里的铁匠张师傅收了你半斗米的工钱，一边修一边和你拉家常：\"你家老三今年该上学了吧？\"他知道村里每家每户的情况。",
+                    urban: "你在平台下单，师傅30分钟到达。标价150元，修好后扫码支付，全程没说几句话。你连他叫什么都不知道，但维修记录永久保存在你的订单里。"
+                },
+                C: {
+                    rural: "你试着修，但不太会。正巧路过的李大爷看见了，停下来教了你半个小时。\"这活儿啊，我爹当年就是这么教我的。\"你学到的，是几代人传下来的经验。",
+                    urban: "你在B站找到一个教程视频，播放量89万。评论区有人说有用，有人说没用。试了三个方案，第二个奏效了。你永远不知道教你的那个UP主是谁。"
+                }
+            },
+            insight: {
+                icon: "💡",
+                title: "解锁概念：熟人社会 vs 陌生人社会",
+                content: "在1940年代的乡村，人们之间是**熟人关系**——你认识村里的每个人，知道他们的名字、家庭、性格。这种关系是长期的、多面的，建立在世代共同生活的基础上。\n\n而在当代城市，人们之间主要是**陌生人关系**——通过货币、合同、平台来建立临时的、单一目的的联系。你不需要知道对方是谁，只需要完成交易。\n\n这是《乡土中国》的起点：**理解社会的本质，要从人与人的关系模式开始**。",
+                tags: ["熟人社会", "陌生人社会", "社会关系"]
+            }
+        }
+        // 可以添加更多场景...
+    ],
+    
+    init() {
+        this.renderScene();
+    },
+    
+    renderScene() {
+        const container = document.getElementById('chapter-1');
+        const scene = this.scenes[this.scene];
+        
+        if (!scene) {
+            this.renderSummary();
+            return;
+        }
+        
+        let html = '<div class="dual-world">';
+        
+        // 左侧：乡村
+        html += this.renderWorldPanel(scene.rural, 'rural');
+        
+        // 右侧：城市
+        html += this.renderWorldPanel(scene.urban, 'urban');
+        
+        html += '</div>';
+        html += '<div id="insight-box" class="hidden"></div>';
+        html += '<button id="next-btn" class="next-btn hidden">继续下一幕 →</button>';
+        
+        container.innerHTML = html;
+        this.bindEvents();
+    },
+    
+    renderWorldPanel(world, type) {
+        let html = '<div class="world-panel">';
+        html += `<div class="world-header ${type}">`;
+        html += `<div class="world-icon">${world.icon}</div>`;
+        html += `<div class="world-title">${type === 'rural' ? '1940年代·乡村' : '2024年·城市'}</div>`;
+        html += `<div class="world-time">${world.time}</div>`;
+        html += '</div>';
+        html += '<div class="scene-content">';
+        html += `<div class="scene-desc">${world.desc}</div>`;
+        html += '<div class="situation">';
+        html += '<div class="situation-title">📌 当前情境</div>';
+        html += `<div class="situation-text">${world.situation}</div>`;
+        html += '</div>';
+        html += '<div class="choices-section">';
+        html += '<div class="choices-title">💭 你的选择：</div>';
+        world.choices.forEach(c => {
+            html += `<button class="choice-btn ${type}-choice" data-key="${c.key}">`;
+            html += `[${c.key}] ${c.text}`;
+            html += '</button>';
+        });
+        html += '</div>';
+        html += `<div id="${type}-result"></div>`;
+        html += '</div>';
+        html += '</div>';
+        return html;
+    },
+    
+    bindEvents() {
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.makeChoice(btn.dataset.key);
+            });
+        });
+        
+        const nextBtn = document.getElementById('next-btn');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.nextScene());
+        }
+    },
+    
+    makeChoice(key) {
+        const scene = this.scenes[this.scene];
+        this.choices.push(key);
+        
+        document.getElementById('rural-result').innerHTML = 
+            `<div class="result-box">${scene.results[key].rural}</div>`;
+        document.getElementById('urban-result').innerHTML = 
+            `<div class="result-box">${scene.results[key].urban}</div>`;
+        
+        document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+        
+        setTimeout(() => this.showInsight(scene.insight), 1000);
+    },
+    
+    showInsight(insight) {
+        this.insights.push(insight.title);
+        
+        const html = `
+            <div class="insight-unlock">
+                <div class="insight-icon">${insight.icon}</div>
+                <div class="insight-title">${insight.title}</div>
+                <div class="insight-content">${renderMarkdown(insight.content)}</div>
+                <div>
+                    ${insight.tags.map(t => `<span class="insight-tag">${t}</span>`).join('')}
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('insight-box').innerHTML = html;
+        document.getElementById('insight-box').classList.remove('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+        
+        notify('🎓 解锁新概念：' + insight.tags[0]);
+        scrollToBottom();
+    },
+    
+    nextScene() {
+        this.scene++;
+        if (this.scene >= this.scenes.length) {
+            GameManager.completeChapter1();
+        } else {
+            this.renderScene();
+            scrollToTop();
+        }
+    },
+    
+    renderSummary() {
+        // 总结页面逻辑
+        const html = `
+            <div class="summary-page" style="background: #faf8f3; padding: 40px; border-radius: 20px;">
+                <h2 style="text-align: center; color: #5d4e37; margin-bottom: 30px;">
+                    🎓 第一章完成！
+                </h2>
+                <p style="text-align: center; font-size: 1.2em; color: #4a3f32; margin-bottom: 30px;">
+                    你已解锁 <strong>${this.insights.length}</strong> 个核心概念
+                </p>
+                <button class="next-btn" onclick="GameManager.switchChapter(2)">
+                    进入第二章：差序格局 →
+                </button>
+            </div>
+        `;
+        document.getElementById('chapter-1').innerHTML = html;
+    }
+};
